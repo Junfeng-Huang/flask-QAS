@@ -1,0 +1,13 @@
+你好 {{ user.username }},
+
+欢迎来到 HDUQAS!
+
+确认您的帐户，请点击以下链接:
+
+{{ url_for('account.confirm', token=token, _external=True) }}
+
+谢谢,
+
+HDUQAS 团队
+
+注意:对这个电子邮件地址的回复是无效的。

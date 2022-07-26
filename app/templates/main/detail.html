@@ -1,0 +1,262 @@
+{% extends 'base_layout.html' %}
+{% block title %}{{ super() }} - 文章详情{% endblock %}
+{% block header %}
+    <link rel="stylesheet" href={{ url_for("static",filename="style/detail.css") }}>
+    <script src={{ url_for("static", filename="js/ckeditor.js") }}></script>
+{% endblock %}
+{% block content %}
+<!-- 问题简述 -->
+<div class="layout-question">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-9">
+                {% include 'components/flash_messages.html' %}
+                <!-- 问题标签 -->
+                {#        {% if question.tags %}#}
+                {#          <ul class="que-tag-ls">#}
+                {#            {% for tag in question.tags %}#}
+                {#              <li><a href="#">{{ tag.tag_name }}</a></li>#}
+                {#            {% endfor %}#}
+                {#          </ul>#}
+                {#        {% endif %}#}
+                <!-- // 问题标签 -->
+                <h3>{{ ques.title }}</h3>
+                <div class="show-desc ">
+                    …
+                    <span class="btn-show-more">显示全部<i class="glyphicon glyphicon-menu-down"></i></span>
+                </div>
+                <div class="show-all hidden">
+                    {% autoescape false %}
+                    {{ ques.desc| d("暂无", True) | safe }}
+                    {% endautoescape %}
+                    <span class="btn-show-less">收起<i class="glyphicon glyphicon-menu-up"></i></span>
+                </div>
+                <!-- 菜单栏 -->
+                <div class="qa-footer">
+                    {% if QuestionFollow.query.filter_by(question_id=ques.id, user_id=current_user.id).first() %}
+                        <div>
+                            <a type="button" href="{{ url_for("main.follow_question", id=ques.id, next=url_for("main.detail", id=ques.id)) }}"
+                               class="btn btn-info btn-sm">已 关 注</a>
+                        </div>
+                    {% else %}
+                        <div>
+                            <a type="button" href="{{ url_for("main.follow_question", id=ques.id, next=url_for("main.detail", id=ques.id)) }}"
+                               class="btn btn-info btn-sm">关 注</a>
+                        </div>
+                    {% endif %}
+                    <div>
+                        <button type="button" class="btn btn-info btn-sm" data-toggle="modal" data-target="#myModal">
+                            写回答
+                        </button>
+                    </div>
+
+                    <!-- Modal -->
+                    <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+                        <div class="modal-dialog" role="document">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span></button>
+                                    <h3 class="modal-title" id="myModalLabel">回答</h3>
+                                </div>
+                                <div class="modal-body">
+                                    <form method="post" action="{{ url_for("main.detail", id=ques.id) }}">
+                                        <input type="hidden">
+                                        {{ answer_form.csrf_token }}
+
+                                        {{ answer_form.body }}
+                                        <label style="margin-top: 10px;">
+                                            {{ answer_form.submit }}
+                                        </label>
+                                    </form>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+
+
+                    <div class="txt-menu"><i class="glyphicon glyphicon-comment"></i> {{ ques.answers.count() }}条回答
+                    </div>
+                    <div class="txt-menu"><i class="glyphicon glyphicon-send"></i>分享</div>
+                    <div class="txt-menu"><i class="glyphicon glyphicon-flag"></i>举报</div>
+                    <div class="txt-menu"></div>
+                    <div class="txt-menu btn-group">
+                        <i class="glyphicon glyphicon-option-horizontal dropdown-toggle" data-toggle="dropdown"
+                           aria-haspopup="true" aria-expanded="false"></i>
+                        <ul class="dropdown-menu">
+                            <li><a href="#">不感兴趣</a></li>
+                        </ul>
+                    </div>
+                </div>
+                <!-- //菜单栏 -->
+            </div>
+            <div class="col-md-3">
+                <div class="que-stats-box">
+                    <!-- 关注者 -->
+                    <div>
+                        <span>关注者</span>
+                        {#            <strong>{{ ques|number_split }}</strong>#}
+                        <strong>{{ ques.question_follow.count() }}</strong>
+                    </div>
+                    <!-- //关注者 -->
+                    <!-- 被浏览 -->
+                    <div>
+                        <span>被浏览</span>
+                        {#            <strong>{{ question.view_count|number_split }}</strong>#}
+                        <strong>25</strong>
+                    </div>
+                    <!-- //被浏览 -->
+                </div>
+            </div>
+        </div><!-- // row -->
+    </div>
+</div>
+<!-- // 问题简述 -->
+
+<div class="layout-answer">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-9 left-content">
+                {% block link_more %}
+                    <a class="link-more" href="#">查看全部 {{ ques.answers.count() }} 个回答</a>
+                {% endblock %}
+                <!-- 回答内容区域 -->
+                {% if ques.answers.all() %}
+                {% for ans in ques.answers.all() %}
+                <div class="answer-content box-wrap">
+                    <div class="user-info">
+                        {#            <div class="avater">#}
+                        {#              {% if ans.user.avatar %}#}
+                        {#                <img src="{{ ans.user.avatar }}" alt="用户头像">#}
+                        {#              {% else %}#}
+                        {#                <img src="/assets/home/qa/user_head.jpg" alt="用户头像">#}
+                        {#              {% endif %}#}
+                        {#            </div>#}
+                        <div class="desc">
+                            <h4>
+                                {% if ans.author.nickname %}
+                                    <a href="{{ url_for("account.mine", id=ans.author.id) }}">{{ ans.author.nickname }}</a>
+                                {% else %}
+                                    <a href="{{ url_for("account.mine", id=ans.author.id) }}">{{ ans.author.username }}</a>
+                                {% endif %}
+                            </h4>
+                        </div>
+                    </div>
+                    <div class="answer-stats">{{ ans.like_list.count() }} 人赞同了该回答</div>
+                    <div class="answer-txt">
+                        {% autoescape false %}
+                        {{ ans.body|safe }}
+                        {% endautoescape %}
+                    </div>
+                    <div class="answer-time">发布于{{ ans.timestamp }}</div>
+                    <!-- 底部菜单 -->
+                    <div class="qa-footer">
+                        {% if Like.query.filter_by(user_id=current_user.id, answer_id=ans.id).first() %}
+                            <div>
+                                <a type="button" class="btn btn-info btn-sm"
+                                   href="{{ url_for("main.ans_like", id=ans.id, next=url_for("main.detail", id=ques.id)) }}">
+                                    <i class="glyphicon glyphicon-thumbs-up"></i> 已赞同 </a>
+                                <button type="button" class="btn btn-info btn-sm"><i
+                                        class="glyphicon glyphicon-thumbs-down"></i></button>
+                            </div>
+                        {% else %}
+                            <div>
+                                <a type="button" class="btn btn-info btn-sm"
+                                   href="{{ url_for("main.ans_like", id=ans.id, next=url_for("main.detail", id=ques.id)) }}">
+                                    <i class="glyphicon glyphicon-thumbs-up"></i> 赞同 </a>
+                                <button type="button" class="btn btn-info btn-sm"><i
+                                        class="glyphicon glyphicon-thumbs-down"></i></button>
+                            </div>
+                        {% endif %}
+                        {#            <div class="txt-menu"><i class="glyphicon glyphicon-comment"></i> 113条评论</div>#}
+                        <div class="txt-menu"><i class="glyphicon glyphicon-send"></i>分享</div>
+
+                        {% if Collection.query.filter_by(user_id=current_user.id, answer_id=ans.id).first() %}
+                            <div class="txt-menu"><a href="{{ url_for("main.collect_ans", id=ans.id, next=url_for("main.detail", id=ques.id)) }}"><i
+                                    class="glyphicon glyphicon-heart"></i>收藏</a></div>
+                        {% else %}
+                            <div class="txt-menu"><a href="{{ url_for("main.collect_ans", id=ans.id, next=url_for("main.detail", id=ques.id)) }}"><i
+                                    class="glyphicon glyphicon-heart" style="color: gray"></i>收藏</a></div>
+                        {% endif %}
+
+                        <div class="txt-menu"><i class="glyphicon glyphicon-flag"></i>举报</div>
+                        <div class="txt-menu"></div>
+                        <div class="txt-menu btn-group">
+                            <i class="glyphicon glyphicon-option-horizontal dropdown-toggle" data-toggle="dropdown"
+                               aria-haspopup="true" aria-expanded="false"></i>
+                            <ul class="dropdown-menu">
+                                <li><a href="#">不感兴趣</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <!-- // 底部菜单 -->
+                {% endfor %}
+                {% else %}
+                <div class="answer-content box-wrap">
+                    暂无人回答该问题
+                </div>
+                {% endif %}
+                <!-- // 回答内容区域 -->
+                {#        {{ self.link_more() }}#}
+            </div>
+        </div>
+    </div>
+</div>
+<div class="layout-footer">
+    <a href="#" data-toggle="tooltip" title="意见反馈"><i class="glyphicon glyphicon-briefcase"></i></a>
+    <a href="#" data-toggle="tooltip" title="回到顶部"><i class="glyphicon glyphicon-arrow-up"></i></a>
+</div>
+
+<!-- // 写回答，对话框 -->
+{% endblock %}
+{% block js_inline %}
+    // 点击，查看更多，把详细的那个p标签展示出来，把自己隐藏
+    $('.show-desc').click(function () {
+    $(this).addClass('hidden');
+    $(this).next().removeClass('hidden')
+    })
+    $('.show-all').click(function () {
+    $(this).addClass('hidden');
+    $(this).prev().removeClass('hidden')
+    })
+{% endblock %}
+
+{% block js_extra %}
+    <script>
+        ClassicEditor
+            .create(document.querySelector('#editor'), {
+
+                toolbar: {
+                    items: ['heading', '|', 'bold', 'italic', 'link', 'bulletedList', 'numberedList', '|', 'outdent', 'indent', 'imageUpload', '|', 'BlockQuote', 'InsertTable', 'undo', 'redo']
+                },
+                language: 'zh',
+
+                licenseKey: '',
+                simpleUpload: {
+                    // The URL that the images are uploaded to.
+                    uploadUrl: '{{url_for("main.save_image")}}',
+
+                    // Enable the XMLHttpRequest.withCredentials property.
+                    withCredentials: true,
+
+                    // Headers sent along with the XMLHttpRequest to the upload server.
+                    headers: {
+                        'X-CSRF-TOKEN': 'CSRF-Token',
+                        Authorization: 'Bearer <JSON Web Token>'
+                    }
+                }
+
+            })
+            .then((editor) => {
+                console.error(editor);
+                editor.plugins.get("SimpleUploadAdapter").createUploadAdapter = (loader) => {
+                    return new SimpleUploadAdapter(loader);
+                }
+            })
+            .catch(error => {
+                console.error(error);
+            });
+    </script>
+{% endblock %}

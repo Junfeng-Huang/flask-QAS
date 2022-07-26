@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+{% from 'macro/form_errors.html' import form_field_errors %}
+{% block title %}{{ super() }}-注册{% endblock %}
+{% block header %}
+  <link rel="stylesheet" href={{ url_for('static',filename="style/login.css") }}>
+  <link rel="stylesheet" href="//at.alicdn.com/t/font_1658093_nokjvsp8hws.css">
+{% endblock %}
+{% block layout %}
+  <div class="container">
+    <div class="row">
+      <div class="col-md-6 col-md-offset-3">
+        {# 展示flash消息 #}
+        {% include 'components/flash_messages.html' %}
+        <div class="login-header">
+          <h2 class="title text-center">HDUQAS-注册</h2>
+          <div class="slogan text-center">有问题 上HDUQAS</div>
+        </div>
+        <!-- 表单登录 -->
+        <form class="login-form box-wrap" method="POST"
+              action="{{ url_for('account.register') }}">
+          {{ form.csrf_token }}
+          <div class="form-group">
+            <label for="id-user-name">{{form.username.label}}</label>
+            {{ form.username}}
+          </div>
+          {{ form_field_errors(form.username.errors) }}
+          <div class="form-group">
+            <label for="id-nick-name">{{form.nickname.label}}</label>
+            {{ form.nickname }}
+          </div>
+          {{ form_field_errors(form.nickname.errors) }}
+          <div class="form-group">
+            <label for="id-password">{{form.password.label}}</label>
+            {{ form.password }}
+          </div>
+          {{ form_field_errors(form.password.errors) }}
+          <div class="form-group">
+            <label for="id-confirm-password">{{form.password2.label}}</label>
+            {{ form.password2 }}
+          </div>
+          {{ form_field_errors(form.password2.errors) }}
+          <div class="form-group">
+            {{ form.submit }}
+          </div>
+          <p class="desc"><br/>
+            注册即代表同意《用户使用协议》《隐私保护指引》</p>
+          <p class="text-right">已有账号，<a href="{{ url_for('account.login') }}">点击登录</a></p>
+        </form>
+
+      </div>
+    </div>
+  </div>
+{% endblock %}

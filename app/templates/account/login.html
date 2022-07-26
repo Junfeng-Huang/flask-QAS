@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+{% from 'macro/form_errors.html' import form_field_errors %}
+{% block title %}{{ super() }}-登录{% endblock %}
+{% block header %}
+  <link rel="stylesheet" href={{url_for('static', filename="style/login.css")}}>
+{#    阿里矢量图标#}
+  <link rel="stylesheet" href={{url_for('static', filename="//at.alicdn.com/t/font_1658093_nokjvsp8hws.css")}}>
+{% endblock %}
+{% block layout %}
+  <div class="container">
+    <div class="row">
+      <div class="col-md-6 col-md-offset-3">
+        {# 展示flash消息 #}
+        {% include 'components/flash_messages.html' %}
+        <!-- // 消息通知区域 -->
+        <div class="login-header">
+          <h2 class="title text-center">HDUQAS登录</h2>
+          <div class="slogan text-center">有问题 上HDUQAS</div>
+        </div>
+        <!-- 表单登录 -->
+        <!-- 表单登录 -->
+        <form class="login-form box-wrap" method="POST"
+              action="">
+          <input type="hidden" name="ref" value="{{ ref|d('',True) }}">
+          {{ form.csrf_token }}
+          <div class="form-group">
+            <label for="id-user-name">{{form.username.label}}</label>
+            {{ form.username }}
+          </div>
+          {{ form_field_errors(form.username.errors) }}
+          <div class="form-group">
+            <label for="id-password">{{form.password.label}}</label>
+            {{ form.password }}
+          </div>
+          {{ form_field_errors(form.password.errors) }}
+          <div class="form-group">
+{#            <button type="submit" class="btn btn-info btn-block btn-lg">登录</button>#}
+              {{ form.submit }}
+          </div>
+
+          <p class="text-right">没有账号，<a href={{ url_for("account.register") }}>点击注册</a></p>
+        </form>
+
+      </div>
+    </div>
+  </div>
+{% endblock %}

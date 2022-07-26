@@ -1,0 +1,209 @@
+{% extends 'base_layout.html' %}
+{% block title %}{{ super() }} - 文章详情{% endblock %}
+{% block header %}
+    <link rel="stylesheet" href={{ url_for("static",filename="style/detail.css") }}>
+    <script src={{ url_for("static", filename="js/ckeditor.js") }}></script>
+
+{% endblock %}
+{% block content %}
+<!-- 问题简述 -->
+<div class="layout-question">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-9">
+                {% include 'components/flash_messages.html' %}
+
+                <h3>{{ article.title }}</h3>
+                <!-- 菜单栏 -->
+                <div class="qa-footer">
+
+                    {% if Like.query.filter_by(user_id=current_user.id, article_id=article.id).first() %}
+                        <div>
+                            <a href="{{ url_for("main.article_like", id=article.id, next=url_for("main.detail_article", id=article.id)) }}" type="button"
+                               class="btn btn-info btn-sm">
+                                已赞同
+                            </a>
+                        </div>
+                    {% else %}
+                        <div>
+                            <a href="{{ url_for("main.article_like", id=article.id, next=url_for("main.detail_article", id=article.id)) }}" type="button"
+                               class="btn btn-info btn-sm">
+                                赞同
+                            </a>
+                        </div>
+                    {% endif %}
+                    {% if Collection.query.filter_by(user_id=current_user.id, article_id=article.id).first() %}
+                        <div>
+                            <div class="txt-menu"><a href="{{ url_for("main.collect_article", id=article.id, next=url_for("main.detail_article", id=article.id)) }}"><i
+                                    class="glyphicon glyphicon-heart"></i>收藏</a></div>
+                        </div>
+                    {% else %}
+                        <div>
+                            <div class="txt-menu"><a href="{{ url_for("main.collect_article", id=article.id, next=url_for("main.detail_article", id=article.id)) }}"><i
+                                    class="glyphicon glyphicon-heart" style="color: gray"></i>收藏</a></div>
+                        </div>
+                    {% endif %}
+                    <div class="txt-menu">
+                        <button type="button" class="btn btn-info btn-sm" data-toggle="modal" data-target="#myModal">
+                            <i class="glyphicon glyphicon-comment"></i>
+                        </button>
+                        {{ article.comments.count() }}条评论
+
+                        <!-- Modal -->
+                        <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+                            <div class="modal-dialog" role="document">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                            <span aria-hidden="true">&times;</span></button>
+                                        <h3 class="modal-title" id="myModalLabel">评论</h3>
+                                    </div>
+                                    <div class="modal-body">
+                                        <form method="post"
+                                              action="{{ url_for("main.detail_article", id=article.id) }}">
+                                            <input type="hidden">
+                                            {{ comment_form.csrf_token }}
+
+                                            {{ comment_form.body }}
+                                            <label style="margin-top: 10px;">
+                                                {{ comment_form.submit }}
+                                            </label>
+                                        </form>
+                                    </div>
+
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                    <div class="txt-menu"><i class="glyphicon glyphicon-send"></i>分享</div>
+                    <div class="txt-menu"><i class="glyphicon glyphicon-flag"></i>举报</div>
+                    <div class="txt-menu"></div>
+                    <div class="txt-menu btn-group">
+                        <i class="glyphicon glyphicon-option-horizontal dropdown-toggle" data-toggle="dropdown"
+                           aria-haspopup="true" aria-expanded="false"></i>
+                    </div>
+                </div>
+                <!-- //菜单栏 -->
+            </div>
+            <div class="col-md-3">
+                <div class="que-stats-box">
+                    <!-- 关注者 -->
+                    <div>
+                        <span>赞同</span>
+                        {#            <strong>{{ ques|number_split }}</strong>#}
+                        <strong>{{ article.like_list.count() }}</strong>
+                    </div>
+                    <!-- //关注者 -->
+                    <!-- 被浏览 -->
+                    <div>
+                        <span>被浏览</span>
+                        {#            <strong>{{ question.view_count|number_split }}</strong>#}
+                        <strong>25</strong>
+                    </div>
+                    <!-- //被浏览 -->
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- // 问题简述 -->
+
+<div class="layout-answer">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-9 content-left">
+                <!-- 内容区域 -->
+                <div class="answer-content box-wrap">
+                    <div class="user-info">
+                        {#            <div class="avater">#}
+                        {#              {% if answer.user.avatar %}#}
+                        {#                <img src="{{ answer.user.avatar }}" alt="用户头像">#}
+                        {#              {% else %}#}
+                        {#                <img src="/assets/home/qa/user_head.jpg" alt="用户头像">#}
+                        {#              {% endif %}#}
+                        {#            </div>#}
+                        <div class="desc">
+                            <h4>
+                                {% if article.author.nickname %}
+                                    <a href="{{ url_for("account.mine", id=article.author.id) }}">{{ article.author.nickname }}</a>
+                                {% else %}
+                                    <a href="{{ url_for("account.mine", id=article.author.id) }}">{{ article.author.username }}</a>
+                                {% endif %}
+                            </h4>
+                            <div class="answer-time">发布于{{ article.timestamp }}</div>
+                        </div>
+                    </div>
+
+                    <div class="answer-txt">
+                        {% autoescape false %}
+                        {{ article.body|safe }}
+                        {% endautoescape %}
+                    </div>
+
+
+                </div>
+                {#                评论区#}
+                <div>
+                    <div class="comment-box box-wrap">
+                        <!-- 统计和菜单 -->
+                        <div class="comment-stats">
+                            <div class="title">{{ article.comments.count()|d('0', True) }}条评论</div>
+                            <div class="menu"><i class="glyphicon glyphicon-random"></i>切换为时间顺序</div>
+                        </div>
+                        <!-- // 统计和菜单 -->
+                        <!-- 评论列表 -->
+                        <form class="form-horizontal comment-publish" method="POST"
+                              action="{{ url_for("main.detail_article",id=article.id) }}">
+                            {{ comment_form.csrf_token }}
+                            {{ comment_form.body }}
+                            {{ comment_form.submit }}
+                        </form>
+                        <!-- // 评论列表 -->
+                        {% for comment in article.comments.all() %}
+                            <div class="form-horizontal comment-publish">
+                                <div class="media-body">
+                                    <h4 class="media-heading">
+                                        {% if comment.author.nickname %}
+                                            <a href="{{ url_for("account.mine",id=comment.author.id) }}">{{ comment.author.nickname }}</a>
+                                            {% else %}
+                                            <a href="{{ url_for("account.mine",id=comment.author.id) }}">{{ comment.author.username }}</a>
+                                        {% endif %}
+                                    </h4>
+                                    <p>{{ comment.body }}</p>
+                                    <ul class="list-unstyled list-inline media-detail pull-left">
+                                        <li><i class="fa fa-calendar"></i>{{ comment.timestamp }}</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        {% endfor %}
+
+
+                        <!-- 发表评论 -->
+                        <!-- // 发表评论 -->
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+<div class="layout-footer">
+    <a href="#" data-toggle="tooltip" title="意见反馈"><i class="glyphicon glyphicon-briefcase"></i></a>
+    <a href="#" data-toggle="tooltip" title="回到顶部"><i class="glyphicon glyphicon-arrow-up"></i></a>
+</div>
+
+<!-- // 写回答，对话框 -->
+{% endblock %}
+{% block js_inline %}
+    // 点击，查看更多，把详细的那个p标签展示出来，把自己隐藏
+    $('.show-desc').click(function () {
+    $(this).addClass('hidden');
+    $(this).next().removeClass('hidden')
+    })
+    $('.show-all').click(function () {
+    $(this).addClass('hidden');
+    $(this).prev().removeClass('hidden')
+    })
+{% endblock %}
+

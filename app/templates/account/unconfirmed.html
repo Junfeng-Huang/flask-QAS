@@ -1,0 +1,18 @@
+{% block title %}HDUQAS - 确认你的账户{% endblock %}
+
+{% block page_content %}
+<div class="page-header">
+    <h1>
+        您好, {{ current_user.username }}!
+    </h1>
+    <h3>您还没有确认您的帐户。</h3>
+    <p>
+        在您访问本网站之前，您需要确认您的帐户。
+        检查你的收件箱，你应该已经收到一封带有确认链接的电子邮件，若是没有找到请检查垃圾信箱。
+    </p>
+    <p>
+        需要另一封确认邮件?
+        <a href="{{ url_for('account.resend_confirmation') }}">点击这里</a>
+    </p>
+</div>
+{% endblock %}

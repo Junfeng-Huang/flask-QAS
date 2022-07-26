@@ -1,0 +1,7 @@
+{% from 'macro/answer_comment_item.html' import comment_item_show %}
+{% for comment in page_data.items %}
+  {{ comment_item_show(comment) }}
+  {% for reply in answer.comment_list(comment.id) %}
+    {{ comment_item_show(reply) }}
+  {% endfor %}
+{% endfor %}

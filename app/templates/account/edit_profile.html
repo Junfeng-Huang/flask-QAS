@@ -1,0 +1,13 @@
+{% extends "base_layout.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
+{% block header %}
+  <link rel="stylesheet" href={{ url_for('static', filename="/style/mine.css") }}>
+{% endblock %}
+{% block content %}
+<div class="col-md-5 col-md-offset-3" style="background-color: white; ">
+<div class="page-header">
+    <h1>编辑资料</h1>
+</div>
+    {{ wtf.quick_form(form) }}
+</div>
+{% endblock %}

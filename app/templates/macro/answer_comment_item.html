@@ -1,0 +1,29 @@
+{% macro comment_item_show(comment) %}
+  {# 展示评论列表 #}
+  <div class="comment-item {% if comment.reply_id %}reply {% endif %}">
+    <div class="header">
+      <div class="user-info">
+        <img class="avater" src="{{ comment.user.avatar|d('/assets/home/qa/user_head.jpg', True) }}" alt="">
+        <strong class="uname">{{ comment.user.nickname }}</strong>
+      </div>
+      <div class="time">{{ comment.created_at|dt_format_show }}</div>
+    </div>
+    <div class="body">
+      {{ comment.content }}
+    </div>
+    <div class="footer">
+      <div class="link-love" data-url="{{ url_for('qa.comment_love', comment_id=comment.id) }}"><i
+          class="glyphicon glyphicon-thumbs-up"></i><span>{{ comment.love_count }}</span></div>
+      <div class="link-reply" data-id="{{ comment.id }}"><i class="glyphicon glyphicon-share-alt"></i> 回复</div>
+      <div><i class="glyphicon glyphicon-thumbs-down"></i> 踩</div>
+      <div><i class="glyphicon glyphicon-flag"></i> 举报</div>
+    </div>
+    <!-- 输入框 -->
+    <form class="form-horizontal comment-publish hidden" id="id-comment-{{ comment.id }}">
+      <input type="hidden" name="reply_id" value="{{ comment.id }}">
+      <input type="text" name="content" class="form-control" placeholder="写下你的评论...">
+      <button type="button" class="btn btn-default btn-grey">发布</button>
+    </form>
+    <!-- // 输入框 -->
+  </div>
+{% endmacro %}

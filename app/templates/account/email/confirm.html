@@ -1,0 +1,8 @@
+<p>您好 {{ user.username }},</p>
+<p>欢迎来到 <b>HDUQAS</b>!</p>
+<p>请确认你的邮件 <a href="{{ url_for('account.confirm', token=token, _external=True) }}">点击这里</a>.</p>
+<p>或者，您也可以将以下链接粘贴到浏览器的地址栏中  :</p>
+<p>{{ url_for('account.confirm', token=token, _external=True) }}</p>
+<p>谢谢,</p>
+<p>HDUQAS 团队</p>
+<p><small>注意:对这个电子邮件地址的回复是无效的。 </small></p>

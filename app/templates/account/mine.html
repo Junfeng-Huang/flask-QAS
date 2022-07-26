@@ -1,0 +1,265 @@
+{% extends "base_layout.html" %}
+{% from "macro/pagination_widget.html" import pagination_widget %}
+{% block header %}
+    <link rel="stylesheet" href={{ url_for('static', filename="/style/mine.css") }}>
+{% endblock %}
+{% block content %}
+<body class="layout">
+<!-- 顶部个人信息 -->
+<div class="layout-personal">
+    <div class="container">
+        <div class="main-bottom">
+            {#        <div class="content-left">#}
+            {#          <img src="./assets/home/qa/personal_avatar.jpg" alt="">#}
+            {#        </div>#}
+            <div class="content-right">
+                <h3>{{ user.nickname }}</h3>
+                <div class="desc">
+                    {% if not user.signature %}
+                        暂无
+                    {% else %}
+                        {{ user.signature }}
+                    {% endif %}
+                </div>
+                <div class="info-row">
+                    <i class="glyphicon glyphicon-folder-close"></i>
+                    <span>
+                          {% if not user.school %}
+                              保密
+                          {% else %}
+                              {{ user.school }}
+                          {% endif %}
+                        </span>
+                </div>
+                <div class="info-row">
+                    <i class="glyphicon glyphicon-certificate"></i>
+                    <span>
+                            {% if user.sex==0 %}
+                                男
+                            {% elif user.sex==1 %}
+                                女
+                            {% else %}
+                                保密
+                            {% endif %}
+                        </span>
+                </div>
+                {% if current_user.id==id %}
+                    <a class="btn btn-default btn-gray" type="button"
+                       href={{ url_for("account.edit_profile") }}>编辑个人资料</a>
+                {% else %}
+                    {% if Follow.query.filter_by(follower_id=current_user.id, followed_id=id).first() %}
+                        <a class="btn btn-default btn-gray" type="button"
+                           href={{ url_for("main.follow", id=id, next=url_for("account.mine", id=id)) }}>已关注</a>
+                    {% else %}
+                        <a class="btn btn-default btn-gray" type="button"
+                           href={{ url_for("main.follow", id=id, next=url_for("account.mine", id=id)) }}>关注</a>
+                    {% endif %}
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+<!-- // 顶部个人信息 -->
+<div class="container layout-main">
+    <div class="row">
+        <div class="col-md-9">
+            <!-- 左侧内容区域 -->
+            <div class="main-left">
+                <ul class="nav nav-tabs">
+{#                    <li role="presentation"><a href="#">动态</a></li>#}
+                    {% if tag == "answer" %}
+                        <li role="presentation" class="active">
+                            <a href="{{ url_for("account.mine", id=id, tag="answer") }}">回答</a>
+                        </li>
+                        <li role="presentation">
+                            <a href="{{ url_for("account.mine", id=id, tag="collection") }}">收藏</a>
+                        </li>
+                        <li role="presentation">
+                            <a href="{{ url_for("account.mine", id=id, tag="follow_question") }}">关注</a>
+                        </li>
+                        <li role="presentation">
+                            <a href="{{ url_for("account.mine", id=id, tag="article") }}">文章</a>
+                        </li>
+
+                    {% elif tag == "collection" %}
+                        <li role="presentation">
+                            <a href="{{ url_for("account.mine", id=id, tag="answer") }}">回答</a>
+                        </li>
+                        <li role="presentation" class="active">
+                            <a href="{{ url_for("account.mine", id=id, tag="collection") }}">收藏</a>
+                        </li>
+                        <li role="presentation">
+                            <a href="{{ url_for("account.mine", id=id, tag="follow_question") }}">关注</a>
+                        </li>
+                        <li role="presentation">
+                            <a href="{{ url_for("account.mine", id=id, tag="article") }}">文章</a>
+                        </li>
+
+                    {% elif tag == "follow_question" %}
+                        <li role="presentation">
+                            <a href="{{ url_for("account.mine", id=id, tag="answer") }}">回答</a>
+                        </li>
+                        <li role="presentation">
+                            <a href="{{ url_for("account.mine", id=id, tag="collection") }}">收藏</a>
+                        </li>
+                        <li role="presentation" class="active">
+                            <a href="{{ url_for("account.mine", id=id, tag="follow_question") }}">关注</a>
+                        </li>
+                        <li role="presentation">
+                            <a href="{{ url_for("account.mine", id=id, tag="article") }}">文章</a>
+                        </li>
+
+                    {% elif tag == "article" %}
+                        <li role="presentation">
+                            <a href="{{ url_for("account.mine", id=id, tag="answer") }}">回答</a>
+                        </li>
+                        <li role="presentation">
+                            <a href="{{ url_for("account.mine", id=id, tag="collection") }}">收藏</a>
+                        </li>
+                        <li role="presentation">
+                            <a href="{{ url_for("account.mine", id=id, tag="follow_question") }}">关注</a>
+                        </li>
+                        <li role="presentation" class="active">
+                            <a href="{{ url_for("account.mine", id=id, tag="article") }}">文章</a>
+                        </li>
+
+                    {% endif %}
+                </ul>
+                {% if tag == "answer" %}
+                <div class="title">我的回答</div>
+                <ul class="flllow-qa-ls">
+                    {% for ans in pagination.items %}
+                    {% with ques=ans.question %}
+                    <li>
+                        <a href="{{ url_for("main.detail", id=ques.id) }}">
+                            {{ ques.title }}
+                        </a>
+                        <div class="stats">
+                            <span style="font-size: medium">
+                                            {% if ans.author.nickname %}
+                                                <a href="{{ url_for("account.mine", id=ans.author.id) }}">{{ ans.author.nickname }}</a>
+                                            {% else %}
+                                                <a href="{{ url_for("account.mine", id=ans.author.id) }}">{{ ans.author.username }}</a>
+                                            {% endif %}
+                                : {% autoescape false %}{{ ans.body[0:100] | html2text }}{% endautoescape %}
+                            </span>
+                        </div>
+                    </li>
+                    {% endwith %}
+                    {% endfor %}
+                </ul>
+                <nav aria-label="Page navigation">
+                    {{ pagination_widget("account.mine", pagination, id=id, tag="answer" ) }}
+                </nav>
+
+                {% elif tag == "collection" %}
+                <div class="title">我的收藏</div>
+                <ul class="flllow-qa-ls">
+                    {% for collection in pagination.items %}
+                    {% if collection.answer_id %}
+                    {% with ans = Answer.query.filter_by(id=collection.answer_id).first() %}
+                    {% with ques = ans.question %}
+                    <li>
+                        <a href="{{ url_for("main.detail", id=ques.id) }}">
+                            {{ ques.title }}
+                        </a>
+                        <div class="stats" style="margin-top: 10px">
+                            <span style="font-size: medium">
+                                {% if ans.author.nickname %}
+                                    <a href="{{ url_for("account.mine", id=ans.author.id) }}">{{ ans.author.nickname }}</a>
+                                {% else %}
+                                    <a href="{{ url_for("account.mine", id=ans.author.id) }}">{{ ans.author.username }}</a>
+                                {% endif %}
+                                : {% autoescape false %}{{ ans.body[0:100] | html2text }}{% endautoescape %}
+                            </span>
+                        </div>
+                    </li>
+                    {% endwith %}
+                    {% endwith %}
+                    {% else %}
+                    {% with article = collection.article %}
+                    <li>
+                        <a href="{{ url_for("main.detail_article", id=article.id) }}">
+                            {{ article.title }}
+                        </a>
+                        <div class="stats" style="margin-top: 10px">
+                                    <span style="font-size: medium">
+                                        {% if article.author.nickname %}
+                                            <a href="{{ url_for("account.mine", id=article.author.id) }}">{{ article.author.nickname }}</a>
+                                        {% else %}
+                                            <a href="{{ url_for("account.mine", id=article.author.id) }}">{{ article.author.username }}</a>
+                                        {% endif %}
+                                        : {% autoescape false %}{{ article.body[0:100] | html2text }}{% endautoescape %}
+                                    </span>
+                        </div>
+                    </li>
+                    {% endwith %}
+                    {% endif %}
+                    {% endfor %}
+                </ul>
+                <nav aria-label="Page navigation">
+                    {{ pagination_widget("account.mine", pagination, id=id, tag="collection" ) }}
+                </nav>
+                {% elif tag == "follow_question" %}
+                <div class="title">我关注的问题</div>
+                <ul class="flllow-qa-ls">
+                    {% for follow_question in pagination.items %}
+                        {% with ques=Question.query.filter_by(id=follow_question.question_id).first() %}
+                            <li>
+                                <a href="{{ url_for("main.detail", id=ques.id) }}">
+                                    {{ ques.title }}
+                                </a>
+                                <div class="stats">{{ ques.timestamp }} · {{ ques.answers.count() }}个回答
+                                    · {{ ques.question_follow.count() }}个关注
+                                </div>
+                            </li>
+                        {% endwith %}
+                    {% endfor %}
+                </ul>
+                <nav aria-label="Page navigation">
+                    {{ pagination_widget("account.mine", pagination, id=id, tag="follow_question" ) }}
+                </nav>
+                {% elif tag == "article" %}
+                <div class="title">我的文章</div>
+                <ul class="flllow-qa-ls">
+                    {% for article in pagination.items %}
+                        <li>
+                            <a href="{{ url_for("main.detail_article", id=article.id) }}">
+                                {{ article.title }}
+                            </a>
+                            <div class="stats">{{ article.timestamp }} · {{ article.comments.count() }}条评论</div>
+                        </li>
+                    {% endfor %}
+                </ul>
+                <nav aria-label="Page navigation">
+                    {{ pagination_widget("account.mine", pagination, id=id, tag="article" ) }}
+                </nav>
+                {% endif %}
+
+            </div>
+            <!-- //左侧内容区域 -->
+        </div>
+        <div class="col-md-3">
+            <!-- 右侧内容区域 -->
+            <div class="main-right">
+                <!-- 关注统计 -->
+                <div class="follow-stats box-wrap">
+                    <div>
+                        <span>关注了</span>
+                        <strong>{{ User.query.filter_by(id=id).first().followed.count() }}</strong>
+                    </div>
+                    <div>
+                        <span>关注者</span>
+                        <strong>{{ User.query.filter_by(id=id).first().followers.count() }}</strong>
+                    </div>
+                </div>
+                <!-- // 关注统计 -->
+            </div>
+            <!-- //右侧内容区域 -->
+        </div>
+    </div>
+</div>
+
+</body>
+
+{% endblock %}

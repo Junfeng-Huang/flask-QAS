@@ -1,0 +1,71 @@
+{% extends 'base_layout.html' %}
+{% from 'macro/form_errors.html' import form_field_errors %}
+{% block title %}{{ super() }} - 写文章{% endblock %}
+{% block header %}
+  <link rel="stylesheet" href={{ url_for("static", filename="style/write.css")}}>
+    <script src={{ url_for("static", filename="js/ckeditor.js") }}></script>
+  {% endblock %}
+{% block content %}
+  <div class="container">
+    <div class="row">
+      <div class="col-md-8 col-md-offset-2">
+          {% include 'components/flash_messages.html' %}
+        <form class="form-horizontal write-form" method="post"
+          enctype="multipart/form-data" action="{{ url_for('main.write') }}">
+          {{ form.csrf_token }}
+          <div class="form-group">
+            {{ form.submit }}
+          </div>
+
+          <div class="form-group">
+            {{ form.title }}
+          </div>
+          {{ form_field_errors(form.title.errors) }}
+
+          <div class="form-group">
+            {{ form.body }}
+          </div>
+          {{ form_field_errors(form.body.errors) }}
+
+        </form>
+      </div>
+    </div>
+  </div>
+{% endblock %}
+{% block js_extra %}
+    <script>
+        ClassicEditor
+            .create(document.querySelector('#editor'), {
+
+                toolbar: {
+                    items: ['heading', '|', 'bold', 'italic', 'link', 'bulletedList', 'numberedList', '|','outdent','indent', 'imageUpload', '|','BlockQuote', 'InsertTable', 'undo', 'redo']
+                },
+                language: 'zh',
+
+                licenseKey: '',
+                simpleUpload: {
+                    // The URL that the images are uploaded to.
+                    uploadUrl: '{{url_for("main.save_image")}}',
+
+                    // Enable the XMLHttpRequest.withCredentials property.
+                    withCredentials: true,
+
+                    // Headers sent along with the XMLHttpRequest to the upload server.
+                    headers: {
+                        'X-CSRF-TOKEN': 'CSRF-Token',
+                        Authorization: 'Bearer <JSON Web Token>'
+                    }
+                }
+
+            })
+            .then((editor) => {
+                console.error(editor);
+                editor.plugins.get("SimpleUploadAdapter").createUploadAdapter = (loader) => {
+                    return new SimpleUploadAdapter(loader);
+                }
+            })
+            .catch(error => {
+                console.error(error);
+            });
+    </script>
+{% endblock %}
